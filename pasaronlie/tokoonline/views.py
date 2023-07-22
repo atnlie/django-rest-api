@@ -17,7 +17,13 @@ def getProduct(request):
 def getAllProducts(request):
     products = Product.objects.all()
     serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
+    result = {
+        'code': status.HTTP_200_OK,
+        'message': 'success',
+        'data': serializer.data,
+        'error': ''
+    }
+    return Response(result)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -29,14 +35,47 @@ def addProduct(request):
             'code': status.HTTP_200_OK,
             'message': 'success',
             'data': serializer.data,
-            'error': null
+            'error': False
         }
         return Response(result)
     else:
         result = {
             'code': status.HTTP_400_BAD_REQUEST,
-            'message': 'error',
+            'message': serializer.errors,
             'data': [],
-            'error': serializer.errors
+            'error': True
         }
         return Response(result)
+
+@csrf_exempt
+@api_view(['GET', 'POST'])
+def product(request):
+    if request.method == 'GET':
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        result = {
+            'code': status.HTTP_200_OK,
+            'message': 'success',
+            'data': serializer.data,
+            'error': False
+        }
+        return Response(result)
+    elif request.method == 'POST':
+        serializer = ProductSerializer(data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            result = {
+                'code': status.HTTP_200_OK,
+                'message': 'success',
+                'data': serializer.data,
+                'error': False
+            }
+            return Response(result)
+        else:
+            result = {
+                'code': status.HTTP_400_BAD_REQUEST,
+                'message': serializer.errors,
+                'data': [],
+                'error': True
+            }
+            return Response(result)
