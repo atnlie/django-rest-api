@@ -32,7 +32,7 @@ def addProduct(request):
     if(serializer.is_valid()):
         serializer.save()
         result = {
-            'code': status.HTTP_200_OK,
+            'code': status.HTPP_201_CREATED,
             'message': 'success',
             'data': serializer.data,
             'error': False
